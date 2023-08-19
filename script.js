@@ -567,3 +567,120 @@ REGULAR EXPRESSION
 
 
 
+/*******************************************************
+ EQUALITY, MUTABLE, IMMUTABLE,PRIMITIVESN NON-PRIMITIVES
+ *******************************************************/
+
+//  //primitives:- number, string, char,boolean,etc... 
+//  //non-primitives:- object, array
+
+
+//  //comparing in primitives
+
+//  var a = 2;
+//  var b = 2;
+//  console.log(a===b);    //true, because primitives are comparing using values
+
+//  //comparing in non-primitives
+//  var a={name:'favas'}
+//  var b ={name:'favas'}
+
+//  console.log(a===b);    //false, because non-primitives are comparing using references
+
+//  //immutable:- the value in a reference can not change. if the value change, its reference also change. this is in the case of primitive variables only
+
+//  var a= 11;
+//  var b= a;  //b is storing a's reference
+
+//  var b= b+1;    //try to change value in reference of a, but value can not change, so new value is created in new reference
+//  console.log('a=',a);
+//  console.log('b=',b);   //printing 11,12
+
+//  //mutable:- value can be change. this is in the case of non-primitive variables only
+
+//  var a = {name:'favas'}
+//  var b = a      //b is storing reference of a
+//  b.name = 'faheem'  //only changes the value. not the reference. the reference of b is reference of a. so the changes made to b will change the values in a
+
+//  console.log('a=',a);
+//  console.log('b=',b);   //printing faheem,faheem
+
+
+//  var a = {name:'favas'}
+//  var b = {...a}      // a new reference is created with new value through spread operator
+//  b.name = 'faheem';
+
+//  console.log('a=',a);
+//  console.log('b=',b);   //printing favas,faheem
+
+//  //const :- reference can not change, but value can change, that is why new const variable with same name can not be created
+
+/**************************
+ SHALLOW COPYING,
+***************************/
+
+//shallow Copy:- when we copy two object using spread operator, its only changes the object's reference. not changing the children object's reference
+
+// const obj= {
+//     name:'favas',
+//     age:23,
+//     address:{
+//         houseName:'pothanooran',
+//         postOffice:'othukkungal',
+//         permenentAddress:{
+//             houseName:'sample',
+//             postOffice:'sample'
+//         }
+//     }
+// }
+
+// var obj2 = {...obj};
+// console.log(obj2===obj);        //false, because shallow copy only changes the reference of parent obj
+// console.log(obj2.address===obj.address) //true, because shallow copy donot change the reference of children obj
+
+// //issue with this copy
+// obj2.address.houseName='pothanooran house'
+// console.log(obj2.address===obj.address) //true,
+// console.log(obj.address.houseName);     //we are meant to change only the address in obj2. but obj object addres variable also changed. this cause a big issue in advance programming
+
+// //to solve this, we must do shallow copy in two stage
+// var obj3 = {
+//     ...obj,
+//     address:{
+//         ...obj.address
+//     }
+// }
+// obj3.address.houseName='pothanooran hahaha'
+
+// console.log(obj.address===obj3.address) //false, because the referece of address has been changed using shallow copying in two stage
+// console.log(obj.address.houseName);
+// console.log(obj3.address.houseName);
+
+// console.log(obj3.address.permenentAddress===obj.address.permenentAddress);  //true, that means referece of this child donot changed. this is the property of shallow copy
+// // there is a library in react called immer. this library do the sallow copy in very simple.
+
+/*********************
+ DEEP COPY
+ *********************/
+
+//deep copy: - it copying all the object and child object to a new reference
+// this consume time and memory, but it is very simple to perform
+
+const obj = {
+    name: 'favas',
+    age: 23,
+    address: {
+        houseName: 'pothanooran',
+        postOffice: 'othukkungal',
+        permenentAddress: {
+            houseName: 'sample',
+            postOffice: 'sample'
+        }
+    }
+}
+
+var obj2 = JSON.parse(JSON.stringify(obj));
+
+console.log(obj2===obj);   //false
+console.log(obj2.address===obj.address);   //false
+console.log(obj2.address.permenentAddress===obj.address.permenentAddress);   //false
