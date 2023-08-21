@@ -663,24 +663,173 @@ REGULAR EXPRESSION
  DEEP COPY
  *********************/
 
-//deep copy: - it copying all the object and child object to a new reference
-// this consume time and memory, but it is very simple to perform
+// //deep copy: - it copying all the object and child object to a new reference
+// // this consume time and memory, but it is very simple to perform
 
-const obj = {
-    name: 'favas',
-    age: 23,
-    address: {
-        houseName: 'pothanooran',
-        postOffice: 'othukkungal',
-        permenentAddress: {
-            houseName: 'sample',
-            postOffice: 'sample'
-        }
+// const obj = {
+//     name: 'favas',
+//     age: 23,
+//     address: {
+//         houseName: 'pothanooran',
+//         postOffice: 'othukkungal',
+//         permenentAddress: {
+//             houseName: 'sample',
+//             postOffice: 'sample'
+//         }
+//     }
+// }
+
+// var obj2 = JSON.parse(JSON.stringify(obj));
+
+// console.log(obj2===obj);   //false
+// console.log(obj2.address===obj.address);   //false
+// console.log(obj2.address.permenentAddress===obj.address.permenentAddress);   //false
+
+/*************************************************
+ CALL BACK HELL, PROMISE, ASYNC, AWAIT PROMISE ALL
+ *************************************************/
+
+// // callback hell:- 
+// // it is nested concept in promise function
+// // below example shows is the user id cart stock is available or not
+
+import axios from 'axios'
+
+// function isStockAvailableCallBackHell(id,then,failure) {
+
+//     return axios.get(`https://dummyjson.com/carts/${id}`).then(
+//         (res) => {
+//             const products = res.data.products;
+//             var count = 0;
+//             var err = false;
+//             var isStockAvalable = true;
+//             //here the promise function is calling and working parallally. so the error handling is very difficult
+//             for (var i = 0; i < products.length; i++) {
+//                 var product = products[i]
+//                 axios.get(`https://dummyjson.com/products/${product.id}`).then(
+//                     (res) => {
+//                         const realProduct = res.data;
+//                         if (realProduct.stock < product.quantity && isStockAvalable===true && err!==true) {
+//                             isStockAvalable=false;
+//                             then('No Stock Available for Your All cart products')
+//                             return;
+//                         }
+//                         count++;
+//                         if(count >= products.length){
+//                             then('stock is available')
+//                         }
+
+//                     }
+//                 ).catch(
+//                     (err) => {
+//                         if(err===false){
+//                             err = true
+//                             failure('something Went wrong');
+//                         }
+
+//                     }
+//                 )
+//             }
+
+//         }
+//     ).catch(
+//         (err)=>{
+//             failure('somthing went wrong')
+//         }
+//     )
+
+// }
+
+//     isStockAvailableCallBackHell(20,
+//         (res)=>{
+//             console.log(res);
+//         },
+//         (err)=>{
+//             console.log(err);
+//         }
+//         )
+
+
+// //to simplify we are using promise chaning
+
+// function isStockAvailablePromise(id) {
+
+//     return axios.get(`https://dummyjson.com/carts/${id}`).then(
+//         (res) => {
+//             const products = res.data.products;
+//             return products;
+//         }
+//     ).then(
+//         (res) => {
+//             const promisArray = res.map(
+//                 (product) => {
+//                     return axios.get(`https://dummyjson.com/products/${product.id}`)
+//                 }
+//             )
+//             return Promise.all(promisArray).then(
+//                 (data) => {
+//                     for (var index = 0; index < data.length; index++) {
+//                         const realProduct = data[index].data;
+//                         const cartProduct = res[index]
+//                         if (realProduct.stock < cartProduct.quantity) {
+//                             return 'Stock is not Available'
+//                         }
+//                     }
+//                     return 'Stock is Available'
+//                 }
+//             )
+//         }
+//     ).catch(
+//         (err) => {
+//             return err
+//         }
+//     )
+
+// }
+
+// isStockAvailablePromise(20).then(
+//     (data) => {
+//         console.log(data);
+//     }
+// ).catch(
+//     (err) => {
+//         console.log(err);
+//     }
+// )
+
+//again to simplify we are using async await
+
+async function isStockAvailableAs(id) {
+
+    try {
+        const res = await axios.get(`https://dummyjson.com/carts/${id}`)
+        const products = res.data.products;
+        const promisArray = products.map(
+            (product) => {
+                return axios.get(`https://dummyjson.com/products/${product.id}`)
+            }
+        )
+        const returnArra = await Promise.all(promisArray);
+        const isStockNotAvailable = returnArra.find(
+            (item,index)=>{
+                const realProduct = item.data
+                const cartProduct = products[index]
+                if(realProduct.stock < cartProduct.quantity){
+                    return true;
+                }
+            }
+        )
+        return isStockNotAvailable?'Stock not available':'Stock Available'
+    }catch(err){
+        throw err;
     }
+    
 }
 
-var obj2 = JSON.parse(JSON.stringify(obj));
-
-console.log(obj2===obj);   //false
-console.log(obj2.address===obj.address);   //false
-console.log(obj2.address.permenentAddress===obj.address.permenentAddress);   //false
+isStockAvailableAs(20).then(
+    (data)=>{
+        console.log(data);
+    }
+).catch((err)=>{
+    console.log('Error Occured');
+});
